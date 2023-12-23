@@ -460,6 +460,11 @@ func (c *Client) NewCreateWithdrawService() *CreateWithdrawService {
 }
 
 // NewCreateWithdrawService init creating withdraw service
+func (c *Client) NewQueryAllCoinService() *CreateQueryAllCoinService {
+	return &CreateQueryAllCoinService{c: c}
+}
+
+// NewCreateWithdrawService init creating withdraw service
 func (c *Client) NewCreateAssetTransferService() *CreateAssetTransferService {
 	return &CreateAssetTransferService{c: c}
 }
