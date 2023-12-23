@@ -3,7 +3,7 @@ package futures
 import (
 	"context"
 
-	"github.com/TAOTAO5/go-binance/v2/common"
+	"github.com/taotao5/go-binance/v2/common"
 )
 
 // DepthService show depth info

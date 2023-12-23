@@ -1,4 +1,4 @@
-module github.com/TAOTAO5/go-binance/v2
+module github.com/taotao5/go-binance/v2
 
 go 1.13
 
