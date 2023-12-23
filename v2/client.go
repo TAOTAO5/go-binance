@@ -14,10 +14,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/TAOTAO5/go-binance/v2/common"
-	"github.com/TAOTAO5/go-binance/v2/delivery"
-	"github.com/TAOTAO5/go-binance/v2/futures"
 	"github.com/bitly/go-simplejson"
+	"github.com/taotao5/go-binance/v2/common"
+	"github.com/taotao5/go-binance/v2/delivery"
+	"github.com/taotao5/go-binance/v2/futures"
 )
 
 // SideType define side type of order
