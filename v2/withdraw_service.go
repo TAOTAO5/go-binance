@@ -3,6 +3,7 @@ package binance
 import (
 	"context"
 	"encoding/json"
+	"github.com/taotao5/go-binance/v2/common"
 )
 
 // CreateWithdrawService submits a withdraw request.
@@ -74,7 +75,6 @@ func (s *CreateWithdrawService) WalletType(v string) *CreateWithdrawService {
 	return s
 }
 
-
 // Do sends the request.
 func (s *CreateWithdrawService) Do(ctx context.Context) (*CreateWithdrawResponse, error) {
 	r := &request{
@@ -126,16 +126,22 @@ type CreateWithdrawResponse struct {
 //
 // See https://binance-docs.github.io/apidocs/spot/en/#withdraw-history-supporting-network-user_data
 type ListWithdrawsService struct {
-	c         *Client
-	coin      *string
-	status    *int
-	startTime *int64
-	endTime   *int64
+	c               *Client
+	coin            *string
+	withdrawOrderId *string
+	status          *int
+	startTime       *int64
+	endTime         *int64
 }
 
 // Asset sets the asset parameter.
 func (s *ListWithdrawsService) Coin(coin string) *ListWithdrawsService {
 	s.coin = &coin
+	return s
+}
+
+func (s *ListWithdrawsService) WithdrawOrderId(withdrawOrderId string) *ListWithdrawsService {
+	s.withdrawOrderId = &withdrawOrderId
 	return s
 }
 
@@ -160,7 +166,7 @@ func (s *ListWithdrawsService) EndTime(endTime int64) *ListWithdrawsService {
 }
 
 // Do sends the request.
-func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws []*Withdraw, err error) {
+func (s *ListWithdrawsService) Do(ctx context.Context) (res []*Withdraw, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/sapi/v1/capital/withdraw/history",
@@ -172,6 +178,9 @@ func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws []*Withdraw, e
 	if s.status != nil {
 		r.setParam("status", *s.status)
 	}
+	if s.withdrawOrderId != nil {
+		r.setParam("withdrawOrderId", *s.withdrawOrderId)
+	}
 	if s.startTime != nil {
 		r.setParam("startTime", *s.startTime)
 	}
@@ -182,31 +191,94 @@ func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws []*Withdraw, e
 	if err != nil {
 		return
 	}
-	res := new(WithdrawHistoryResponse)
-	err = json.Unmarshal(data, res)
+	res = make([]*Withdraw, 0)
+	err = json.Unmarshal(data, &res)
 	if err != nil {
 		return
 	}
-	return res.Withdraws, nil
-}
-
-// WithdrawHistoryResponse represents a response from ListWithdrawsService.
-type WithdrawHistoryResponse struct {
-	Withdraws []*Withdraw `json:"withdrawList"`
-	Success   bool        `json:"success"`
+	return res, nil
 }
 
 // Withdraw represents a single withdraw entry.
+
 type Withdraw struct {
-	ID              string  `json:"id"`
-	WithdrawOrderID string  `json:"withdrawOrderID"`
-	Amount          float64 `json:"amount"`
-	TransactionFee  float64 `json:"transactionFee"`
-	Address         string  `json:"address"`
-	AddressTag      string  `json:"addressTag"`
-	TxID            string  `json:"txId"`
-	Asset           string  `json:"asset"`
-	ApplyTime       int64   `json:"applyTime"`
-	Network         string  `json:"network"`
-	Status          int     `json:"status"`
+	ID              string `json:"id"`
+	Amount          string `json:"amount"`
+	TransactionFee  string `json:"transactionFee"`
+	Coin            string `json:"coin"`
+	Status          int    `json:"status"`
+	Address         string `json:"address"`
+	TxID            string `json:"txId"`
+	ApplyTime       string `json:"applyTime"` // UTC时间
+	Network         string `json:"network"`
+	TransferType    int    `json:"transferType"` // 1:站内转账, 0:站外转账
+	WithdrawOrderID string `json:"withdrawOrderId"`
+	Info            string `json:"info"` // 提币失败原因
+	ConfirmNo       int    `json:"confirmNo"`
+	TxKey           string `json:"txKey"`
+	CompleteTime    string `json:"completeTime"` // 提现完成，成功下账时间(UTC)
+}
+
+type CreateQueryAllCoinService struct {
+	c *Client
+}
+
+type NetworkList struct {
+	AddressRegex            string `json:"addressRegex"`
+	Coin                    string `json:"coin"`
+	DepositDesc             string `json:"depositDesc"`
+	DepositEnable           bool   `json:"depositEnable"`
+	IsDefault               bool   `json:"isDefault"`
+	MemoRegex               string `json:"memoRegex"`
+	MinConfirm              int    `json:"minConfirm"`
+	Name                    string `json:"name"`
+	Network                 string `json:"network"`
+	ResetAddressStatus      bool   `json:"resetAddressStatus"`
+	SpecialTips             string `json:"specialTips"`
+	UnLockConfirm           int    `json:"unLockConfirm"`
+	WithdrawDesc            string `json:"withdrawDesc"`
+	WithdrawEnable          bool   `json:"withdrawEnable"`
+	WithdrawFee             string `json:"withdrawFee"`
+	WithdrawIntegerMultiple string `json:"withdrawIntegerMultiple"`
+	WithdrawMax             string `json:"withdrawMax"`
+	WithdrawMin             string `json:"withdrawMin"`
+	SameAddress             bool   `json:"sameAddress"`
+	EstimatedArrivalTime    int    `json:"estimatedArrivalTime"`
+	Busy                    bool   `json:"busy"`
+}
+
+type CoinData struct {
+	Coin              string        `json:"coin"`
+	DepositAllEnable  bool          `json:"depositAllEnable"`
+	Free              string        `json:"free"`
+	Freeze            string        `json:"freeze"`
+	Ipoable           string        `json:"ipoable"`
+	Ipoing            string        `json:"ipoing"`
+	IsLegalMoney      bool          `json:"isLegalMoney"`
+	Locked            string        `json:"locked"`
+	Name              string        `json:"name"`
+	NetworkList       []NetworkList `json:"networkList"`
+	Storage           string        `json:"storage"`
+	Trading           bool          `json:"trading"`
+	WithdrawAllEnable bool          `json:"withdrawAllEnable"`
+	Withdrawing       string        `json:"withdrawing"`
+}
+
+func (s *CreateQueryAllCoinService) Do(ctx context.Context, opts ...RequestOption) (res []*CoinData, err error) {
+	r := &request{
+		method:   "GET",
+		endpoint: "/sapi/v1/capital/config/getall",
+		secType:  secTypeSigned,
+	}
+	data, err := s.c.callAPI(ctx, r, opts...)
+	data = common.ToJSONList(data)
+	if err != nil {
+		return []*CoinData{}, err
+	}
+	res = make([]*CoinData, 0)
+	err = json.Unmarshal(data, &res)
+	if err != nil {
+		return []*CoinData{}, err
+	}
+	return res, nil
 }
