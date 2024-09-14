@@ -173,17 +173,27 @@ func getAPIEndpoint() string {
 // NewClient initialize an API client instance with API key and secret key.
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
-func NewClient(apiKey, secretKey string, ProxyURL string) *Client {
-	var client *http.Client
-	if ProxyURL != "" {
-		proxy := func(_ *http.Request) (*url.URL, error) {
-			return url.Parse(ProxyURL)
-		}
-		transport := &http.Transport{Proxy: proxy}
+func NewClient(apiKey, secretKey string, ProxyURL string, timeout time.Duration) *Client {
+	// 创建一个带有超时和连接池配置的自定义 HTTP 客户端
+	transport := &http.Transport{
+		TLSHandshakeTimeout: 10 * time.Second,
+		IdleConnTimeout:     30 * time.Second,
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 10,
+	}
 
-		client = &http.Client{Transport: transport}
-	} else {
-		client = http.DefaultClient
+	// 如果提供了代理 URL，设置代理
+	if ProxyURL != "" {
+		proxyURL, err := url.Parse(ProxyURL)
+		if err != nil {
+			log.Fatalf("解析代理 URL 时出错: %v", err)
+		}
+		transport.Proxy = http.ProxyURL(proxyURL)
+	}
+
+	client := &http.Client{
+		Transport: transport,
+		Timeout:   timeout, // 设置全局请求超时
 	}
 
 	return &Client{
