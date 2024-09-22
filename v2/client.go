@@ -16,10 +16,7 @@ import (
 	"time"
 
 	"github.com/bitly/go-simplejson"
-<<<<<<< HEAD
-=======
 	jsoniter "github.com/json-iterator/go"
->>>>>>> dev
 	"github.com/taotao5/go-binance/v2/common"
 	"github.com/taotao5/go-binance/v2/delivery"
 	"github.com/taotao5/go-binance/v2/futures"
