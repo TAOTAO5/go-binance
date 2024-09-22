@@ -2,7 +2,7 @@ package binance
 
 import (
 	"context"
-	"encoding/json"
+	stdjson "encoding/json"
 )
 
 // CreateOrderService create order
@@ -704,7 +704,7 @@ func (s *CancelOpenOrdersService) Do(ctx context.Context, opts ...RequestOption)
 	if err != nil {
 		return &CancelOpenOrdersResponse{}, err
 	}
-	rawMessages := make([]*json.RawMessage, 0)
+	rawMessages := make([]*stdjson.RawMessage, 0)
 	err = json.Unmarshal(data, &rawMessages)
 	if err != nil {
 		return &CancelOpenOrdersResponse{}, err

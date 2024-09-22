@@ -2,7 +2,7 @@ package binance
 
 import (
 	"context"
-	"encoding/json"
+
 	"strings"
 )
 
