@@ -5,7 +5,8 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
-	"encoding/json"
+
+	// stdjson
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -15,6 +16,10 @@ import (
 	"time"
 
 	"github.com/bitly/go-simplejson"
+<<<<<<< HEAD
+=======
+	jsoniter "github.com/json-iterator/go"
+>>>>>>> dev
 	"github.com/taotao5/go-binance/v2/common"
 	"github.com/taotao5/go-binance/v2/delivery"
 	"github.com/taotao5/go-binance/v2/futures"
@@ -62,11 +67,17 @@ type SideEffectType string
 // FuturesTransferType define futures transfer type
 type FuturesTransferType int
 
+
+// UserDataEventType define spot user data event type
+type UserDataEventType string
+
 // Endpoints
 const (
 	baseAPIMainURL    = "https://api.binance.com"
 	baseAPITestnetURL = "https://testnet.binance.vision"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // UseTestnet switch all the API endpoints from production to the testnet
 var UseTestnet = false
@@ -117,6 +128,11 @@ const (
 	SymbolFilterTypeIcebergParts     SymbolFilterType = "ICEBERG_PARTS"
 	SymbolFilterTypeMarketLotSize    SymbolFilterType = "MARKET_LOT_SIZE"
 	SymbolFilterTypeMaxNumAlgoOrders SymbolFilterType = "MAX_NUM_ALGO_ORDERS"
+
+	UserDataEventTypeOutboundAccountPosition UserDataEventType = "outboundAccountPosition"
+	UserDataEventTypeBalanceUpdate           UserDataEventType = "balanceUpdate"
+	UserDataEventTypeExecutionReport         UserDataEventType = "executionReport"
+	UserDataEventTypeListStatus              UserDataEventType = "ListStatus"
 
 	MarginTransferTypeToMargin MarginTransferType = 1
 	MarginTransferTypeToMain   MarginTransferType = 2

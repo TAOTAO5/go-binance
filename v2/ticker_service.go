@@ -2,7 +2,6 @@ package binance
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/taotao5/go-binance/v2/common"
 )

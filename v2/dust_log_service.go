@@ -11,7 +11,6 @@ package binance
 
 import (
 	"context"
-	"encoding/json"
 )
 
 // ListDustLogService fetch small amounts of assets exchanged versus BNB
